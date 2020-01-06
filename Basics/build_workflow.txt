@@ -7,3 +7,8 @@ create-react-app react-complete-guide --scripts-version 1.1.5
 cd react-complete-guide
 
 npm start
+
+
+--- to install third party libraries
+npm install --save radium
+npm install --save styled-components
