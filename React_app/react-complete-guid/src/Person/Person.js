@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 
 // import './Person.css'
@@ -15,15 +15,39 @@ const StyledDiv = styled.div`
         width: 450px;
         }
         `;
-const person = (props) => {
-    return (
-        
-        <StyledDiv>
-        < p onClick = { props.click } > I'm a {props.name}. I am {props.age} years old</p>
-            < p > { props.children }</p >
-                <input type='text' value={props.name} onChange={props.change}></input>
-        </StyledDiv>
-    )
+class Person extends Component {
+static getDerivedStateFromProps(props,state) {
+    console.log('[Person.js] getDerivedStateFromProps');
+    return state;
+}
+shouldComponentUpdate(nextProps,nextState){
+    console.log('Person.js] shouldComponentUpdate...');
+    return true;
+}
+
+getSnapshotBeforeUpdate(prevProps,prevState){
+    console.log('[Person.js] getSnapshotBeforeUpdate...');
+    return {message:'fromsnapshot'};
+
+}
+
+componentDidUpdate(props,state,snapshot) {
+    console.log('[Person.js] componentDidUpdate');
+    console.log(snapshot);
+}
+
+    render() {
+        console.log('[Person.js] running child render');
+        return (
+            
+            <StyledDiv>
+            < p onClick = { this.props.click } > I'm a {this.props.name}. I am {this.props.age} years old</p>
+                < p > { this.props.children }</p >
+                    <input type='text' value={this.props.name} onChange={this.props.change}></input>
+            </StyledDiv>
+        )
+    }
+   
 };
 
-export default person;
+export default Person;
