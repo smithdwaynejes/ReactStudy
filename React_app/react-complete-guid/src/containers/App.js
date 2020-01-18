@@ -41,14 +41,14 @@ class App extends Component {
     });
   }
 
-  nameChangeHandler = (event,personId) => {
+  nameChangeHandler = (event, personId) => {
 
 
     const personIndex = this.state.persons.findIndex(item => {
       return item.id === personId;
     });
 
-    const person = {...this.state.persons[personIndex]};
+    const person = { ...this.state.persons[personIndex] };
     person.name = event.target.value;
     // const person = Object.assign({}, this.state.persons[personIndex]);
 
@@ -74,17 +74,17 @@ class App extends Component {
   }
 
   render() {
- 
+
 
     let persons = null;
 
     if (this.state.showTogglePersons) {
       persons = (
         <div>
-          <Persons 
-            persons = {this.state.persons} 
+          <Persons
+            persons={this.state.persons}
             clicked={this.deletePersonHandler}
-            changed={this.nameChangeHandler}/>
+            changed={this.nameChangeHandler} />
         </div>
       );
       // style.backgroundColor = 'red';
@@ -99,16 +99,16 @@ class App extends Component {
 
     return (
       <div className="App">
-        <Cockpit 
-          title = {this.props.appTitle}
-          showTogglePersons = {this.state.showTogglePersons}
-          clicked = {this.personViewHandler} 
+        <Cockpit
+          title={this.props.appTitle}
+          showTogglePersons={this.state.showTogglePersons}
+          clicked={this.personViewHandler}
           persons={this.state.persons} />
         {persons}
 
       </div>
 
-      
+
 
     );
 
