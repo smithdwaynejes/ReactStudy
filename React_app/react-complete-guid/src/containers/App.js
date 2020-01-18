@@ -1,22 +1,22 @@
 import React, { Component } from 'react';
 import './App.css';
 // import Radium from 'radium';
-import styled from 'styled-components';
-import Person from './Person/Person'
+import Persons from '../components/Persons/Persons';
+import Cockpit from '../components/Cockpit/Cockpit';
 
 
-const StyledButton = styled.button `
-  background-color: ${props => props.alt ? 'red':'green'};
-  color:white;
-  font: inherit;
-  border: 1px solid blue;
-  padding: 8px;
-  cursor: pointer;
-  &:hover{
-    background-color: ${props => props.alt ? 'salmon' : 'lightgreen'};
-    color:black;
-  }
-`;
+// const StyledButton = styled.button `
+//   background-color: ${props => props.alt ? 'red':'green'};
+//   color:white;
+//   font: inherit;
+//   border: 1px solid blue;
+//   padding: 8px;
+//   cursor: pointer;
+//   &:hover{
+//     background-color: ${props => props.alt ? 'salmon' : 'lightgreen'};
+//     color:black;
+//   }
+// `;
 class App extends Component {
 
   state = {
@@ -81,18 +81,10 @@ class App extends Component {
     if (this.state.showTogglePersons) {
       persons = (
         <div>
-          {this.state.persons.map((person, index) => {
-            return <Person
-              click={() => this.deletePersonHandler(index)}
-              name={person.name}
-              age={person.age}
-              key={person.id}
-              change = {(event) => this.nameChangeHandler(event, person.id)}
-
-            />
-          })
-          }
-
+          <Persons 
+            persons = {this.state.persons} 
+            clicked={this.deletePersonHandler}
+            changed={this.nameChangeHandler}/>
         </div>
       );
       // style.backgroundColor = 'red';
@@ -103,18 +95,15 @@ class App extends Component {
 
     }
 
-    let classes = [];
-    if (this.state.persons.length <= 2) {
-      classes.push('red');
-    }
-    if (this.state.persons.length <= 1) {
-      classes.push('green');
-    }
+
 
     return (
       <div className="App">
-        <h1 className={classes.join(' ')}>My First React App</h1>
-        <StyledButton alt={this.state.showTogglePersons} onClick={this.personViewHandler}>Switch Name</StyledButton>
+        <Cockpit 
+          title = {this.props.appTitle}
+          showTogglePersons = {this.state.showTogglePersons}
+          clicked = {this.personViewHandler} 
+          persons={this.state.persons} />
         {persons}
 
       </div>
