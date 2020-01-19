@@ -12,3 +12,5 @@ npm start
 --- to install third party libraries
 npm install --save radium
 npm install --save styled-components
+
+npm install --save prop-types
