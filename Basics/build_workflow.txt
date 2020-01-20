@@ -14,3 +14,11 @@ npm install --save radium
 npm install --save styled-components
 
 npm install --save prop-types
+
+
+--------------------------- Adding CSS -------------
+npm run eject
+
+in webpack config, add the following
+modules: true,
+localIdentName:'[name]__[local]__[hash:base64:5]'
