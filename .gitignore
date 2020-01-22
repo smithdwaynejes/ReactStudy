@@ -1,1 +1,5 @@
 Resources/cmp-deep-dive-03-updating-lifecycle-state/node_modules/*
+Resources/http/http--01-starting-setup/node_modules/*
+Resources/http/http--01-starting-setup/package-lock.json
+Resources/Routing/routing--03-after-nested-routing/package-lock.json
+Resources/Routing/routing--03-after-nested-routing/node_modules/*

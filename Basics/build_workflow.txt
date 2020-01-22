@@ -14,3 +14,17 @@ npm install --save radium
 npm install --save styled-components
 
 npm install --save prop-types
+
+
+--------------------------- Adding CSS -------------
+npm run eject
+
+in webpack config, add the following
+modules: true,
+localIdentName:'[name]__[local]__[hash:base64:5]'
+
+https://console.firebase.google.com/project/react-my-burger-b95f7/database/react-my-burger-b95f7/data
+
+
+-- to install router libraries...
+Nom install --save react-router react-router-dom
