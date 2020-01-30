@@ -4,3 +4,5 @@ Resources/http/http--01-starting-setup/package-lock.json
 Resources/Routing/routing--03-after-nested-routing/package-lock.json
 Resources/Routing/routing--03-after-nested-routing/node_modules/*
 node-modules/
+React_app/rdg-cell-editing/node_modules/*
+React_app/rdg-cell-editing/node_modules/

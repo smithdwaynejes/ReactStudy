@@ -35,3 +35,13 @@ npm install --save react-redux
 
 -- to install redux-thunk ...(advance redux)...
 npm install --save redux-thunk
+
+-- to work with Less -- 
+
+npm install react-app-rewired --save
+npm install react-app-rewire-less --save
+
+npm i react-bootstrap-daterangepicker --save
+
+npm install --save bootstrap-daterangepicker react jquery moment prop-types
+npm install --save bootstrap
