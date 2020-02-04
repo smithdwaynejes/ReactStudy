@@ -8,8 +8,6 @@ import Dimensions from "react-dimensions";
 
 import "./styles.less";
 
-import "react-datepicker/dist/react-datepicker.css";
-
 import { morphRate, rates } from "../../../libs/utils";
 import "./styles.scss";
 
