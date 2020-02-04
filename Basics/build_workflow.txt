@@ -45,3 +45,6 @@ npm i react-bootstrap-daterangepicker --save
 
 npm install --save bootstrap-daterangepicker react jquery moment prop-types
 npm install --save bootstrap
+
+npm install react-datepicker --save
+

@@ -1,5 +1,9 @@
 import * as actions from './actions';
 import { Editors, Plugins } from "slickgrid-es6";
+import Faker from "faker";
+import _ from "lodash";
+
+
 
 
 import {
@@ -28,7 +32,9 @@ const columns = [
     sortable,
     field: "type",
     maxWidth: 120,
-    resizeable: true
+    resizeable: true,
+    type: "text",
+    filter: true
   },
   {
     id: "counterparty",
@@ -39,7 +45,9 @@ const columns = [
     cssClass: "slick-editable",
     editor: Editors.Text,
     sortable,
-    resizeable: true
+    resizeable: true,
+    type: "text",
+    filter: true
   },
   {
     id: "currency",
@@ -49,7 +57,9 @@ const columns = [
     maxWidth: 90,
     sortable,
     formatter: countryFormatter,
-    resizeable: true
+    resizeable: true,
+    type: "text",
+    filter: true
   },
   {
     id: "price",
@@ -60,7 +70,9 @@ const columns = [
     formatter: pipFormatter,
     minWidth: 100,
     maxWidth: 100,
-    resizeable: true
+    resizeable: true,
+    type: "text",
+    filter: true
   },
   {
     id: "historic",
@@ -74,7 +86,9 @@ const columns = [
     cssClass: "full-size",
     minWidth: 128,
     maxWidth: 128,
-    resizeable: true
+    resizeable: true,
+    type: "text",
+    filter: false
   },
   {
     id: "amount",
@@ -86,7 +100,9 @@ const columns = [
     editor: Editors.Text,
     minWidth: 100,
     maxWidth: 100,
-    resizeable: true
+    resizeable: true,
+    type: "text",
+    filter: true
   },
   {
     id: "total",
@@ -98,7 +114,9 @@ const columns = [
     sortable: false,
     resizeable: true,
     minWidth: 100,
-    maxWidth: 128
+    maxWidth: 128,
+    type: "text",
+    filter: true
   },
   {
     id: "paymentDate",
@@ -120,7 +138,9 @@ const columns = [
           return new Date(`${split[0]}-${split[1]}-${split[2]}`);
         }
       }
-    }
+    },
+    type: "date",
+    filter: true
   },
   {
     id: "health",
@@ -130,24 +150,82 @@ const columns = [
     headerCssClass: "is-hidden-mobile",
     formatter: healthFormatter,
     sortable: true,
-    resizeable: true
+    resizeable: true,
+    type: "range",
+    filter: true
   }
 ];
+
+const options = {
+  rowHeight: 32,
+  editable: true,
+  enableAddRow: !true,
+  enableCellNavigation: true,
+  // asyncEditorLoading: false,
+  enableAsyncPostRender: true,
+  autoEdit: false,
+  // forceFitColumns: true,
+  showHeaderRow: true,
+  headerRowHeight: 32,
+  explicitInitialization: true,
+  frozenColumn: 1
+};
+
+const mock_slick_data = makeArray(300, id => {
+  const currency = _.sample(["USD", "AUD", "CAD", "EUR", "JPY", "CHF"]);
+  const data = {
+    id,
+    avatar: Faker.image.avatar(),
+    type: _.sample(["BUY", "SELL"]),
+    counterparty: Faker.company.companyName(),
+    health: _.random(0, 100),
+    currency,
+    amount: Faker.finance.amount(),
+    price: rates[currency],
+    paymentDate: dateFormatter(null, null, Faker.date.future())
+  };
+
+  data.historic = [data.price];
+  return data;
+});
+
 export const setSlickGridColumnsStart = (data) => {
     return {
         type:actions.SET_SLICK_GRID_COLUMNS,
         payload: data
     }
 }
-export const setSlickGridData = () => {
+export const setSlickGridDataStart = (data) => {
     return {
-        type: actions.SET_SLICK_GRID_DATA
-    }
+      type: actions.SET_SLICK_GRID_DATA,
+      payload: data
+    };
 }
+
+export const setSlickGridOptionsStart = data => {
+  return {
+    type: actions.SET_SLICK_GRID_OPTIONS,
+    payload: data
+  };
+};
+
+export const setSlickGridData = () => {
+  return dispatch => {
+    
+    dispatch(setSlickGridDataStart(mock_slick_data));
+  };
+};
+
 
 export const setSlickGridColumns = () => {
     return (dispatch) => {
         dispatch(setSlickGridColumnsStart(columns));
     }
 }
+
+export const setSlickGridOptions = () => {
+  return dispatch => {
+    dispatch(setSlickGridOptionsStart(options));
+  };
+};
 

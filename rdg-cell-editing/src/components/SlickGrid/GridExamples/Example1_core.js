@@ -19,77 +19,69 @@ const checkboxSelector = new Plugins.CheckboxSelectColumn({
   cssClass: "slick-cell-checkboxsel"
 });
 
-const columnFilters = {};
-let healthValue = 0;
+const columnFilters = {
+  type:"",
+  columns:{
 
-const options = {
-  rowHeight: 32,
-  editable: true,
-  enableAddRow: !true,
-  enableCellNavigation: true,
-  // asyncEditorLoading: false,
-  enableAsyncPostRender: true,
-  autoEdit: false,
-  // forceFitColumns: true,
-  showHeaderRow: true,
-  headerRowHeight: 32,
-  explicitInitialization: true,
-  frozenColumn: 1
+  }
 };
+let healthValue = 0;
 
 const dv = new Data.DataView();
 // data view
 dv.setFilter(item => {
   let pass = true;
-
+  
   for (let key in item) {
     pass = pass && item.health >= healthValue;
-
+    
+    
     if (
-      key in columnFilters &&
-      columnFilters[key].length &&
+      key in columnFilters.columns &&
+      columnFilters.columns[key].length &&
       !["health", "paymentDate"].includes(key)
     ) {
       pass =
-        pass && String(item[key]).match(new RegExp(columnFilters[key], "ig"));
+        pass &&
+        String(item[key]).match(new RegExp(columnFilters.columns[key], "ig"));
     } else if (
-      key in columnFilters &&
-      columnFilters[key].length &&
-      key === "paymentDate"
-    ) {
-      if (columnFilters[key].length !== 13) {
-        return pass;
-      }
-      console.log("item", typeof item.paymentDate);
-      // console.log("date value", item[key]);
-      let item_date = item.paymentDate;
-      console.log("date", item_date);
-      let inputDate = item.paymentDate.split("/");
-      let checkDate = new Date(
-        `${inputDate[0]}-${inputDate[1]}-${inputDate[2]}`
-      );
-      console.log("checkdate", checkDate);
-      let filterDate = columnFilters[key].split(" ");
-      console.log(filterDate);
+             key in columnFilters.columns &&
+             columnFilters.columns[key].length &&
+             key === "paymentDate"
+           ) {
+             if (columnFilters.columns[key].length !== 13) {
+               return pass;
+             }
+             console.log("item", typeof item.paymentDate);
+             // console.log("date value", item[key]);
+             let item_date = item.paymentDate;
+             console.log("date", item_date);
+             let inputDate = item.paymentDate.split("/");
+             let checkDate = new Date(
+               `${inputDate[0]}-${inputDate[1]}-${inputDate[2]}`
+             );
+             console.log("checkdate", checkDate);
+             let filterDate = columnFilters.columns[key].split(" ");
+             console.log(filterDate);
 
-      let fromDate = new Date(
-        `${filterDate[0].substr(0, 2)}-${filterDate[0].substr(
-          2,
-          2
-        )}-${filterDate[0].substr(4, 2)}`
-      );
+             let fromDate = new Date(
+               `${filterDate[0].substr(0, 2)}-${filterDate[0].substr(
+                 2,
+                 2
+               )}-${filterDate[0].substr(4, 2)}`
+             );
 
-      let toDate = new Date(
-        `${filterDate[1].substr(0, 2)}-${filterDate[1].substr(
-          2,
-          2
-        )}-${filterDate[1].substr(4, 2)}`
-      );
+             let toDate = new Date(
+               `${filterDate[1].substr(0, 2)}-${filterDate[1].substr(
+                 2,
+                 2
+               )}-${filterDate[1].substr(4, 2)}`
+             );
 
-      pass = pass && checkDate > fromDate && checkDate < toDate;
+             pass = pass && checkDate > fromDate && checkDate < toDate;
 
-      console.log(fromDate);
-    }
+             console.log(fromDate);
+           }
   }
   return pass;
 });
@@ -105,9 +97,10 @@ class Filter extends React.Component {
   handleChange = ({ target }) => {
     const value = target.value.trim();
     if (value.length) {
-      this.props.columnFilters[this.props.columnId] = value;
+      this.props.columnFilters.columns[this.props.columnId] = value;
+      
     } else {
-      delete this.props.columnFilters[this.props.columnId];
+      delete this.props.columnFilters.columns[this.props.columnId];
     }
 
     this.props.dv.refresh();
@@ -116,7 +109,7 @@ class Filter extends React.Component {
   render() {
     return (
       <input
-        defaultValue={this.props.columnFilters[this.props.columnId]}
+        defaultValue={this.props.columnFilters.columns[this.props.columnId]}
         type="text"
         className="form-control"
         onChange={this.handleChange}
@@ -127,7 +120,6 @@ class Filter extends React.Component {
 
 // main!
 class Home extends React.Component {
-
   rates = Object.keys(rates);
 
   historic = this.rates.reduce((acc, cur) => {
@@ -140,8 +132,9 @@ class Home extends React.Component {
   };
 
   state = {
-    editing: null,
-    purchasing: false
+    data: null,
+    columns: null,
+    options: null
   };
 
   purchaseHandler = () => {
@@ -152,125 +145,149 @@ class Home extends React.Component {
     this.setState({ purchasing: false });
   };
 
-  
+  static getDerivedStateFromProps(props, state) {
+    console.log("[getDerivedStateFromProps]....");
 
-  componentDidMount() {
-    this.props.onSetSlickDataColumns();
-    this.props.onSetSlickData();
-    
-    // fake data
-    console.log(this.props);
-    console.log(this.props.slickColumns);
-    dv.setItems(this.props.slickData);
+    // this.props.onSetSlickDataColumns();
+    console.log(props);
+    console.log(state);
+    // props.onSetSlickDataColumns();
 
-    const grid = (this.gridInstance = new Grid(
-      this.grid,
-      dv,
-      this.props.slickColumns,
-      options
-    ));
-    this.props.slickColumns[7].formatter = this.props.slickColumns[7].formatter.bind(
-      this.gridInstance
-    );
+    if (state.data === null && state.columns === null) {
+      props.onSetSlickData();
+      props.onSetSlickDataColumns();
+      props.onSetSlickOptions();
+    }
 
-    grid.setSelectionModel(
-      new Plugins.RowSelectionModel({ selectActiveRow: false })
-    );
-    grid.registerPlugin(checkboxSelector);
-
-    const changeFilter = _.debounce(value => {
-      healthValue = value;
-      dv.refresh();
-    }, 500);
-
-    grid.onHeaderRowCellRendered.subscribe((e, { node, column }) => {
-      if (
-        ["_checkbox_selector", "historic", "health"].indexOf(column.id) === -1
-      ) {
-        ReactDOM.render(
-          <Filter
-            columnId={column.id}
-            columnFilters={columnFilters}
-            dv={dv}
-          />,
-          node
-        );
-        node.classList.add("slick-editable");
-      } else if (column.id === "health") {
-        ReactDOM.render(
-          <input
-            className="range"
-            defaultValue={healthValue}
-            type="range"
-            onChange={e => changeFilter(e.target.value)}
-          />,
-          node
-        );
-      } else if (column.id === "paymentDate") {
-        let searchLens = (
-          <div
-            id="showserchimg_ct"
-            class="cptr fontSize20 text-center"
-            alt="search"
-            onclick="cSearch.openSearch('ct')"
-            data-original-title=""
-            title=""
-          >
-            <input id="sdate" type="text"></input>
-          </div>
-        );
-
-        ReactDOM.render(searchLens, node);
-      } else {
-        node.classList.add("slick-uneditable");
-      }
-      if (column.id === "_checkbox_selector") {
-        node.innerHTML = '<i class="fa fa-filter" />';
-      }
-    });
-
-    grid.onSort.subscribe(function(e, args) {
-      // args.multiColumnSort indicates whether or not this is a multi-column sort.
-      // If it is, args.sortCols will have an array of {sortCol:..., sortAsc:...} objects.
-      // If not, the sort column and direction will be in args.sortCol & args.sortAsc.
-
-      // We'll use a simple comparer function here.
-      const comparer = function(a, b) {
-        return a[args.sortCol.field] > b[args.sortCol.field] ? 1 : -1;
+    if (
+      props.slickData !== state.data &&
+      props.slickColumns !== state.columns
+    ) {
+      return {
+        data: props.slickData,
+        columns: props.slickColumns,
+        options: props.slickOptions
       };
+    }
+    return null;
+  }
 
-      // Delegate the sorting to DataView.
-      // This will fire the change events and update the grid.
-      dv.sort(comparer, args.sortAsc);
-    });
+  componentDidUpdate(prevProps, prevState) {
+    console.log("[componentDidUpdate]....");
 
-    dv.onRowCountChanged.subscribe(() => {
-      grid.updateRowCount();
-      grid.render();
-    });
+    console.log(prevProps);
+    console.log(this.props);
+    console.log(prevState);
+    console.log(this.state);
 
-    grid.onBeforeEditCell.subscribe((e, { item }) => {
-      this.setState({ editing: item });
-    });
+    if (prevProps.slickData !== this.props.slickData) {
+      dv.setItems(this.state.data);
+      const grid = (this.gridInstance = new Grid(
+        this.grid,
+        dv,
+        this.state.columns,
+        this.state.options
+      ));
 
-    grid.onBeforeCellEditorDestroy.subscribe(() =>
-      this.setState({ editing: null })
-    );
+      grid.setSelectionModel(
+        new Plugins.RowSelectionModel({
+          selectActiveRow: false
+        })
+      );
+      grid.registerPlugin(checkboxSelector);
 
-    grid.onCellChange.subscribe((e, { item }) => {
-      dv.updateItem(item.id, item);
-    });
+      const changeFilter = _.debounce(value => {
+        healthValue = value;
+        dv.refresh();
+      }, 500);
 
-    dv.onRowsChanged.subscribe((e, { rows }) => {
-      grid.invalidateRows(rows);
-      grid.render();
-    });
+      grid.onHeaderRowCellRendered.subscribe((e, { node, column }) => {
+        if (column.filter) {
+          if (column.type === "text" || column.type === "date") {
+            ReactDOM.render(
+              <Filter
+                columnId={column.id}
+                columnFilters={columnFilters}
+                dv={dv}
+              />,
+              node
+            );
+            node.classList.add("slick-editable");
+          } else if (column.type === "range") {
+            ReactDOM.render(
+              <input
+                className="range"
+                defaultValue={healthValue}
+                type="range"
+                onChange={e => changeFilter(e.target.value)}
+              />,
+              node
+            );
+          } else if (column.type === "date") {
+            let searchLens = (
+              <div
+                id="showserchimg_ct"
+                class="cptr fontSize20 text-center"
+                alt="search"
+                onclick="cSearch.openSearch('ct')"
+                data-original-title=""
+                title=""
+              >
+                <input id="sdate" type="text"></input>
+              </div>
+            );
 
-    grid.init();
+            ReactDOM.render(searchLens, node);
+          }
+        } else {
+          node.classList.add("slick-uneditable");
+        }
+        if (column.id === "_checkbox_selector") {
+          node.innerHTML = '<i class="fa fa-filter" />';
+        }
+      });
 
-    window.addEventListener("resize", this.handleResize);
+      grid.onSort.subscribe(function(e, args) {
+        // args.multiColumnSort indicates whether or not this is a multi-column sort.
+        // If it is, args.sortCols will have an array of {sortCol:..., sortAsc:...} objects.
+        // If not, the sort column and direction will be in args.sortCol & args.sortAsc.
 
-    //this.mutate();
+        // We'll use a simple comparer function here.
+        const comparer = function(a, b) {
+          return a[args.sortCol.field] > b[args.sortCol.field] ? 1 : -1;
+        };
+
+        // Delegate the sorting to DataView.
+        // This will fire the change events and update the grid.
+        dv.sort(comparer, args.sortAsc);
+      });
+
+      dv.onRowCountChanged.subscribe(() => {
+        grid.updateRowCount();
+        grid.render();
+      });
+
+      grid.onBeforeEditCell.subscribe((e, { item }) => {
+        this.setState({ editing: item });
+      });
+
+      grid.onBeforeCellEditorDestroy.subscribe(() =>
+        this.setState({ editing: null })
+      );
+
+      grid.onCellChange.subscribe((e, { item }) => {
+        dv.updateItem(item.id, item);
+      });
+
+      dv.onRowsChanged.subscribe((e, { rows }) => {
+        grid.invalidateRows(rows);
+        grid.render();
+      });
+
+      grid.init();
+
+      window.addEventListener("resize", this.handleResize);
+    }
   }
 
   // cellUpdate(id, item, column){
@@ -321,16 +338,21 @@ class Home extends React.Component {
     this._timer = setTimeout(this.mutate, _.random(100, 1000));
   };
 
-  componentWillUnmount() {    
-    console.log(this.props.slickData);
-    console.log(this.props.slickColumns);
-    console.log('----------');
-    clearTimeout(this._timer);
-    this.gridInstance.destroy();
-    window.removeEventListener("resize", this.handleResize);
-  }
+  // componentWillUnmount() {
+  //   console.log("componentWillUnmount");
+
+  //   console.log(this.props.slickData);
+  //   console.log(this.props.slickColumns);
+  //   console.log(this.gird);
+  //   if (this.props.slickColumns.length !== 0) {
+  //     clearTimeout(this._timer);
+  //     this.gridInstance.destroy();
+  //     window.removeEventListener("resize", this.handleResize);
+  //   }
+  // }
 
   render() {
+    console.log("render...");
     console.log(this.props.slickData);
     console.log(this.props.slickColumns);
     return (
@@ -347,9 +369,12 @@ class Home extends React.Component {
 }
 
 const mapStateToProps = state => {
+  console.log("mapStateToProps");
+  console.log(state);
   return {
     slickColumns: state.slickColumns,
-    slickData: state.slickData
+    slickData: state.slickData,
+    slickOptions: state.slickOptions
   };
 };
 
@@ -360,7 +385,10 @@ const mapDispatchToProps = dispatch => {
     },
     onSetSlickData: () => {
       return dispatch(actionTypes.setSlickGridData());
+    },
+    onSetSlickOptions: () => {
+      return dispatch(actionTypes.setSlickGridOptions());
     }
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(Dimensions()(Home));
+export default Dimensions()(connect(mapStateToProps, mapDispatchToProps)(Home));
